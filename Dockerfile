@@ -12,7 +12,7 @@ ENV INFLUX_USER=""
 ENV INFLUX_PASS=""
 ENV INFLUX_DATABASE=""
 
-RUN apt-get update && apt-get install -y libpq-dev build-essential
+
 
 
 COPY requirements.txt ./
