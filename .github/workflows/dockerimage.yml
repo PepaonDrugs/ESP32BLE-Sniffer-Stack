@@ -42,4 +42,4 @@ jobs:
         platforms: linux/amd64,linux/ppc64le,linux/arm64
         file: ./Dockerfile
         push: true
-        tags: pepaondrugs/ESP32BLE-Sniffer-Stack:latest,pepaondrugs/ESP32BLE-Sniffer-Stack:v1.0.0
+        tags: pepaondrugs/esp32ble-sniffer-stack:latest,pepaondrugs/esp32ble-sniffer-stack:v1.0.0
