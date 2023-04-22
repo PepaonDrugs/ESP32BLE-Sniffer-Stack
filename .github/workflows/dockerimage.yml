@@ -3,7 +3,7 @@ name: Build develop image
 on: 
   push:
       branches:
-      - 'main'
+      - 'develop'
 
 
   # Allows you to run this workflow manually from the Actions tab
