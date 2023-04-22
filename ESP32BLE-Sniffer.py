@@ -29,45 +29,46 @@ def on_message(client, userdata, message):
     # Extract the RSSI values for each device in the JSON data
     rssi_values = []
     for device in data["Results"]:
-        rssi = data["Results"][device]["rssi"]
-        rssi_values.append(rssi)
-        print("RSSI value for device", device, ":", rssi)
+        rssi = data["Results"][device].get("rssi")
+        if rssi is not None:
+            rssi_values.append(rssi)
+            print("RSSI value for device", device, ":", rssi)
     # Calculate the highest, lowest, and average RSSI
-    highest_rssi = max(rssi_values)
-    lowest_rssi = min(rssi_values)
-    avg_rssi = sum(rssi_values) / len(rssi_values)
-    print("Highest RSSI:", highest_rssi)
-    print("Lowest RSSI:", lowest_rssi)
-    print("Average RSSI:", avg_rssi)
-    # Write the data to InfluxDB
-    data_points = [
-        {
-            "measurement": "device_count",
-            "fields": {
-                "value": num_devices
+    if rssi_values:
+        highest_rssi = max(rssi_values)
+        lowest_rssi = min(rssi_values)
+        avg_rssi = sum(rssi_values) / len(rssi_values)
+        print("Highest RSSI:", highest_rssi)
+        print("Lowest RSSI:", lowest_rssi)
+        print("Average RSSI:", avg_rssi)
+        # Write the data to InfluxDB
+        data_points = [
+            {
+                "measurement": "device_count",
+                "fields": {
+                    "value": num_devices
+                }
+            },
+            {
+                "measurement": "rssi_min",
+                "fields": {
+                    "value": lowest_rssi,
+                }
+            },
+            {
+                "measurement": "rssi_avg",
+                "fields": {
+                    "value": avg_rssi,
+                }
+            },
+            {
+                "measurement": "rssi_max",
+                "fields": {
+                    "value": highest_rssi,
+                }
             }
-        },
-        {
-            "measurement": "rssi_min",
-            "fields": {
-                "value": lowest_rssi,
-            }
-        },
-        {
-            "measurement": "rssi_avg",
-            "fields": {
-                "value": avg_rssi,
-            }
-        },
-        {
-            "measurement": "rssi_max",
-            "fields": {
-                "value": highest_rssi,
-            }
-        }
-        
-    ]
-    influx_client.write_points(data_points)
+        ]
+        influx_client.write_points(data_points)
 
 # Create a new MQTT client instance
 client = mqtt.Client()
