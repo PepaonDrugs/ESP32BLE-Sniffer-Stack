@@ -7,7 +7,7 @@ Esp32 sniffes for Ble --> Sends to Mqtt server ---> RSSI min/maxi/low
 and device count ---> dockercontainer writes into influxdb
 
 
-##Getting Started
+## Getting Started
 
 Upload esp32sniffer.ino with Huge APP partition scheme
 
