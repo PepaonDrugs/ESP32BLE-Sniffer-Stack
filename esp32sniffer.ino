@@ -4,6 +4,9 @@
 #include <BLEDevice.h>
 #include <BLEScan.h>
 #include <BLEAddress.h>
+
+
+#define SLEEP_TIME 42
  
 // MQTT-Parameter
 #define MQTT_server "brokerip"
@@ -18,7 +21,7 @@
 const char* ssid = "your wifi name"; // WIFIN-Name
 const char* ssidkey = "your wifi password"; // WiFi Key
  
-int scanTime = 10; // Ble searching time
+int scanTime = 2; // Suchzeit
 BLEScan* pBLEScan;
 WiFiClient wclient;
 PubSubClient mqtt(MQTT_server, MQTT_port, wclient);
@@ -38,10 +41,10 @@ void setup()
     delay(500);
     Serial.print(".");
     timeout++;
-    if  (timeout > 60) // If login unsuccesfull
+    if  (timeout > 60) // Wenn Anmeldung nicht möglich
     {
       Serial.println("\r\nWLAN-Verbindung fehlt. Reboot.");
-      ESP.restart(); // ESP32 restart
+      ESP.restart(); // ESP32 neu starten
     }
   }
   Serial.println("");
@@ -54,6 +57,7 @@ void setup()
     Serial.println("\r\nMQTT-Verbindung hergestellt");
     mqtt.setBufferSize(2048);
     mqtt.publish(MQTT_statustopic,"Geraet verbunden");
+    mqtt.publish(MQTT_statustopic, String(WiFi.localIP()).c_str());
   }
  
   Serial.println("Starte BLE Scanner");
@@ -87,7 +91,7 @@ void loop()
       else jsonscanresult = jsonscanresult + "\"serviceuuid\":\"\",";
 
       if (foundDevices.getDevice(j).haveManufacturerData()) {
-         jsonscanresult = jsonscanresult + "\"servicemfdata\":\"" + foundDevices.getDevice(j).getManufacturerData().c_str() + "\","; 
+         jsonscanresult = jsonscanresult + "\"servicemfdata\":\"" + foundDevices.getDevice(j).getName().c_str() + "\","; 
       }
       else jsonscanresult = jsonscanresult + "\"servicemfdata\":\"\",";
       
@@ -105,7 +109,7 @@ void loop()
       else jsonscanresult = jsonscanresult + "\"serviceuuid\":\"\",";
 
       if (foundDevices.getDevice(j).haveManufacturerData()) {
-         jsonscanresult = jsonscanresult + "\"servicemfdata\":\"" + foundDevices.getDevice(j).getManufacturerData().c_str() + "\","; 
+         jsonscanresult = jsonscanresult + "\"servicemfdata\":\"" + foundDevices.getDevice(j).getName().c_str() + "\","; 
       }
       else jsonscanresult = jsonscanresult + "\"servicemfdata\":\"\",";
       
@@ -114,10 +118,12 @@ void loop()
     
   }
   jsonscanresult = jsonscanresult + "}}";
-  pBLEScan->clearResults(); // free up space
+  pBLEScan->clearResults(); // Speicher freigeben
   mqtt.publish(MQTT_scantopic, (char*) jsonscanresult.c_str());
   Serial.println(jsonscanresult);
   delay(100);
+
+  
   if (WiFi.status() != WL_CONNECTED)  ESP.restart();
   if (mqtt.connected())
   {
@@ -139,6 +145,10 @@ void loop()
        ESP.restart();
      }
     }
+
    mqtt.publish(MQTT_statustopic,"Geraet neu verbunden");
   }
+  Serial.println("deep sleep started");
+  delay(500);
+  esp_deep_sleep(SLEEP_TIME * 1000000);
 }
