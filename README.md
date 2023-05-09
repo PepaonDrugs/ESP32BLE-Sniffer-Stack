@@ -21,7 +21,7 @@ edit username password...
 ```
 and wifi credentials
 ```yaml
-const char* ssid = "your wifi name"; // WIFIN-Name
+const char* ssid = "your wifi name"; // WIFI-Name
 const char* ssidkey = "your wifi password"; // WiFi Key
 ```
 
